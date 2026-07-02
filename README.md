@@ -160,3 +160,17 @@ python -m chestxray8.visualize `
 ```
 
 生成结果包括训练损失、AUC、准确率曲线，逐疾病 AUC/F1/Accuracy 柱状图，以及 ROC 曲线图。
+
+## 当前验收项：单图预测入口
+
+可对单张胸部 X 光图片输出 14 类疾病概率，后续交互式网页会复用该逻辑。
+
+```powershell
+$env:PYTHONPATH="src"
+python -m chestxray8.predict `
+  --model-path outputs\shard_001\best_model.keras `
+  --image D:\ChestXray8\images\00000001_000.png `
+  --image-size 224 `
+  --threshold 0.5 `
+  --output outputs\single_prediction.json
+```
