@@ -185,3 +185,19 @@ streamlit run app\streamlit_app.py
 ```
 
 左侧可配置模型、评估指标、训练日志和图表目录路径；真实模型训练完成前，页面也可以打开并展示未就绪状态。
+
+## 当前验收项：报告素材汇总
+
+训练、评估和可视化完成后，可自动汇总报告素材：
+
+```powershell
+$env:PYTHONPATH="src"
+python -m chestxray8.report_materials `
+  --manifest-summary manifests\summary.txt `
+  --training-summary outputs\shard_001\training_summary.json `
+  --metrics-summary outputs\evaluation\metrics_summary.json `
+  --figures-dir outputs\figures `
+  --output reports\report_materials.md
+```
+
+该 Markdown 文件可作为专题报告的数据来源和答辩提纲。
