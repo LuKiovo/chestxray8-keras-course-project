@@ -39,3 +39,40 @@ python -m chestxray8.stage_shard `
   --stage-dir D:\stage_current_shard `
   --clean
 ```
+
+## 当前验收项：Keras 训练入口
+
+训练入口支持读取一个训练 shard 和固定验证集，完成 14 类多标签训练，并输出 checkpoint、训练日志和训练摘要。
+
+```powershell
+$env:PYTHONPATH="src"
+python -m chestxray8.training `
+  --train-csv manifests\shards\train_shard_000.csv `
+  --val-csv manifests\val.csv `
+  --image-root D:\stage_current_shard `
+  --output-dir outputs\shard_000 `
+  --model mobilenet_v2 `
+  --weights imagenet `
+  --image-size 224 `
+  --batch-size 32 `
+  --epochs 5
+```
+
+继续训练下一个 shard 时，先用 `stage_shard` 切换图片目录，再加载上一步 checkpoint：
+
+```powershell
+$env:PYTHONPATH="src"
+python -m chestxray8.training `
+  --train-csv manifests\shards\train_shard_001.csv `
+  --val-csv manifests\val.csv `
+  --image-root D:\stage_current_shard `
+  --output-dir outputs\shard_001 `
+  --resume-from outputs\shard_000\best_model.keras `
+  --model mobilenet_v2 `
+  --weights imagenet `
+  --image-size 224 `
+  --batch-size 32 `
+  --epochs 5
+```
+
+本机快速自测可使用测试里的 tiny CNN 路径，不需要真实 ChestX-ray8 数据。
