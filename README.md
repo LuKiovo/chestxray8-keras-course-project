@@ -145,3 +145,18 @@ python scripts\build_submission_zip.py `
 ```
 
 压缩包内会额外生成 `SUBMISSION_MANIFEST.txt`，列出实际包含的文件。
+
+## 当前验收项：结果可视化
+
+训练和评估完成后，可生成报告与网页复用的 PNG 图表：
+
+```powershell
+$env:PYTHONPATH="src"
+python -m chestxray8.visualize `
+  --training-log outputs\shard_001\training_log.csv `
+  --metrics-json outputs\evaluation\metrics_summary.json `
+  --roc-json outputs\evaluation\roc_curves.json `
+  --output-dir outputs\figures
+```
+
+生成结果包括训练损失、AUC、准确率曲线，逐疾病 AUC/F1/Accuracy 柱状图，以及 ROC 曲线图。
