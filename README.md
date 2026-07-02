@@ -125,3 +125,23 @@ python scripts\run_cloud_workflow.py --config configs\cloud_gpu.local.json --ste
 ```
 
 `stage-train` 会先清理并复制当前 shard 图片，再启动训练；当 `shard-id > 0` 时，会默认从上一个 shard 的 `best_model.keras` 继续训练。
+
+## 当前验收项：提交包构建
+
+最终提交前可生成项目 ZIP。默认打包 Git 跟踪的代码和文档，并排除原始数据、模型权重、训练输出、压缩包和本地 `Agents.md`。
+
+```powershell
+$env:PYTHONPATH="src"
+python scripts\build_submission_zip.py --output dist\chestxray8-keras-course-project.zip
+```
+
+如果要把最终报告加入提交包：
+
+```powershell
+$env:PYTHONPATH="src"
+python scripts\build_submission_zip.py `
+  --output dist\chestxray8-keras-course-project.zip `
+  --include reports\final_report.docx
+```
+
+压缩包内会额外生成 `SUBMISSION_MANIFEST.txt`，列出实际包含的文件。
