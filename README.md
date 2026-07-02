@@ -174,3 +174,14 @@ python -m chestxray8.predict `
   --threshold 0.5 `
   --output outputs\single_prediction.json
 ```
+
+## 当前验收项：交互式网页
+
+Streamlit 网页用于课程答辩展示，包含项目概览、单图预测、评估指标、训练曲线和文件产物检查。
+
+```powershell
+$env:PYTHONPATH="src"
+streamlit run app\streamlit_app.py
+```
+
+左侧可配置模型、评估指标、训练日志和图表目录路径；真实模型训练完成前，页面也可以打开并展示未就绪状态。
