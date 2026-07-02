@@ -1,0 +1,15 @@
+{
+  "metadata_csv": "/workspace/data/ChestXray8/Data_Entry_2017.csv",
+  "raw_image_root": "/workspace/data/ChestXray8/images",
+  "manifest_dir": "/workspace/project/manifests",
+  "stage_dir": "/workspace/stage_current_shard",
+  "output_dir": "/workspace/project/outputs",
+  "shard_size": 10000,
+  "image_size": 224,
+  "batch_size": 32,
+  "epochs": 5,
+  "learning_rate": 0.0001,
+  "model": "mobilenet_v2",
+  "weights": "imagenet",
+  "threshold": 0.5
+}

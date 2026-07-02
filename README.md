@@ -98,3 +98,30 @@ python -m chestxray8.evaluate `
 - `outputs/evaluation/metrics_summary.json`
 - `outputs/evaluation/roc_curves.json`
 - `outputs/evaluation/predictions.csv`
+
+## 当前验收项：云 GPU 工作流配置
+
+复制并修改示例配置：
+
+```powershell
+copy configs\cloud_gpu.example.json configs\cloud_gpu.local.json
+```
+
+先预览命令，不实际执行：
+
+```powershell
+$env:PYTHONPATH="src"
+python scripts\run_cloud_workflow.py --config configs\cloud_gpu.local.json --step prepare
+python scripts\run_cloud_workflow.py --config configs\cloud_gpu.local.json --step stage-train --shard-id 0
+python scripts\run_cloud_workflow.py --config configs\cloud_gpu.local.json --step stage-train --shard-id 1
+python scripts\run_cloud_workflow.py --config configs\cloud_gpu.local.json --step evaluate --shard-id 1
+```
+
+确认路径无误后，加 `--execute` 真正运行：
+
+```powershell
+$env:PYTHONPATH="src"
+python scripts\run_cloud_workflow.py --config configs\cloud_gpu.local.json --step stage-train --shard-id 0 --execute
+```
+
+`stage-train` 会先清理并复制当前 shard 图片，再启动训练；当 `shard-id > 0` 时，会默认从上一个 shard 的 `best_model.keras` 继续训练。
