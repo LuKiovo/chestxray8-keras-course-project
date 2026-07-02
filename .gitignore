@@ -1,0 +1,35 @@
+Agents.md
+
+# Python/runtime files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# Data and large artifacts
+data/
+datasets/
+raw_data/
+checkpoints/
+models/
+outputs/
+runs/
+logs/
+*.keras
+*.h5
+*.ckpt
+*.pt
+*.pth
+*.onnx
+
+# Generated reports/packages
+dist/
+*.zip
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
