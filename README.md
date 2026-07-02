@@ -76,3 +76,25 @@ python -m chestxray8.training `
 ```
 
 本机快速自测可使用测试里的 tiny CNN 路径，不需要真实 ChestX-ray8 数据。
+
+## 当前验收项：模型评估入口
+
+训练完成后，可在固定测试集上输出整体指标、逐疾病指标、ROC 曲线数据和样例预测 CSV。
+
+```powershell
+$env:PYTHONPATH="src"
+python -m chestxray8.evaluate `
+  --model-path outputs\shard_001\best_model.keras `
+  --test-csv manifests\test.csv `
+  --image-root D:\ChestXray8\images `
+  --output-dir outputs\evaluation `
+  --image-size 224 `
+  --batch-size 32 `
+  --threshold 0.5
+```
+
+生成结果：
+
+- `outputs/evaluation/metrics_summary.json`
+- `outputs/evaluation/roc_curves.json`
+- `outputs/evaluation/predictions.csv`
