@@ -28,6 +28,8 @@ logs/
 
 # Generated reports/packages
 dist/
+reports/
+docs/final_report.md
 *.zip
 *.tar.gz
 
