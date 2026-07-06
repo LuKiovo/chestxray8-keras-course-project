@@ -15,6 +15,8 @@ raw_data/
 checkpoints/
 models/
 outputs/
+manifests/
+chestxray8_gpu_results/
 runs/
 logs/
 *.keras
@@ -27,6 +29,7 @@ logs/
 # Generated reports/packages
 dist/
 *.zip
+*.tar.gz
 
 # OS/editor
 .DS_Store

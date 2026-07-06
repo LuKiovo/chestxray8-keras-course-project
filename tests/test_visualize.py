@@ -64,7 +64,28 @@ class VisualizeTest(unittest.TestCase):
                 self.assertTrue(output.exists())
                 self.assertGreater(output.stat().st_size, 0)
 
+    def test_create_figures_accepts_string_epoch_column(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            training_log = root / "training_log.csv"
+            training_log.write_text(
+                "epoch,loss,auc,binary_accuracy\n"
+                "0,0.9,0.55,0.60\n"
+                "1,0.7,0.70,0.72\n",
+                encoding="utf-8",
+            )
+
+            output_dir = root / "figures"
+            outputs = create_figures(output_dir, training_log=training_log)
+
+            self.assertEqual(
+                {path.name for path in outputs},
+                {"training_loss.png", "training_auc.png", "training_accuracy.png"},
+            )
+            for output in outputs:
+                self.assertTrue(output.exists())
+                self.assertGreater(output.stat().st_size, 0)
+
 
 if __name__ == "__main__":
     unittest.main()
-

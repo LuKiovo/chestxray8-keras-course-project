@@ -34,7 +34,10 @@ def save_training_curves(training_log: Path, output_dir: Path) -> list[Path]:
         raise ValueError(f"Training log is empty: {training_log}")
 
     output_paths: list[Path] = []
-    epoch = df["epoch"] + 1 if "epoch" in df else range(1, len(df) + 1)
+    if "epoch" in df:
+        epoch = pd.to_numeric(df["epoch"], errors="coerce").fillna(0).astype(int) + 1
+    else:
+        epoch = range(1, len(df) + 1)
 
     metric_pairs = [
         ("loss", "val_loss", "training_loss.png", "Loss"),
@@ -155,4 +158,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
