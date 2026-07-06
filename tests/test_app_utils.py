@@ -40,7 +40,18 @@ class AppUtilsTest(unittest.TestCase):
             df = load_training_log(path)
         self.assertEqual(list(df["epoch"]), [1, 2])
 
+    def test_load_training_log_accepts_string_epoch(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "training_log.csv"
+            path.write_text("epoch,loss,val_loss\n0,1.0,1.2\n1,0.8,1.0\n", encoding="utf-8")
+            df = load_training_log(path)
+            df["epoch"] = df["epoch"].astype(str)
+            path.write_text(df.to_csv(index=False), encoding="utf-8")
+
+            reloaded = load_training_log(path)
+
+        self.assertEqual(list(reloaded["epoch"]), [2, 3])
+
 
 if __name__ == "__main__":
     unittest.main()
-

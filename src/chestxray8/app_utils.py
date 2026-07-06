@@ -47,8 +47,7 @@ def top_predictions(prediction: dict, n: int = 5) -> list[dict]:
 def load_training_log(path: str | Path) -> pd.DataFrame:
     df = pd.read_csv(path)
     if "epoch" in df:
-        df["epoch"] = df["epoch"] + 1
+        df["epoch"] = pd.to_numeric(df["epoch"], errors="coerce").fillna(0).astype(int) + 1
     else:
         df.insert(0, "epoch", range(1, len(df) + 1))
     return df
-

@@ -21,6 +21,9 @@ st.set_page_config(
     layout="wide",
 )
 
+DEFAULT_ARTIFACT_ROOT = Path("chestxray8_gpu_results") if Path("chestxray8_gpu_results").exists() else Path(".")
+DEFAULT_SHARD = "shard_015"
+
 
 def path_input(label: str, default: str) -> Path:
     return Path(st.sidebar.text_input(label, default))
@@ -43,11 +46,12 @@ st.title("ChestX-ray8 胸部 X 光多标签分类")
 st.caption("Keras/TensorFlow 训练、评估与交互式结果展示")
 
 st.sidebar.header("运行配置")
-model_path = path_input("模型文件 (.keras)", "outputs/shard_001/best_model.keras")
-metrics_path = path_input("评估指标 JSON", "outputs/evaluation/metrics_summary.json")
-roc_path = path_input("ROC 数据 JSON", "outputs/evaluation/roc_curves.json")
-training_log_path = path_input("训练日志 CSV", "outputs/shard_001/training_log.csv")
-figures_dir = path_input("图表目录", "outputs/figures")
+artifact_root = path_input("结果根目录", str(DEFAULT_ARTIFACT_ROOT))
+model_path = path_input("模型文件 (.keras)", str(artifact_root / "outputs" / DEFAULT_SHARD / "best_model.keras"))
+metrics_path = path_input("评估指标 JSON", str(artifact_root / "outputs" / "evaluation" / "metrics_summary.json"))
+roc_path = path_input("ROC 数据 JSON", str(artifact_root / "outputs" / "evaluation" / "roc_curves.json"))
+training_log_path = path_input("训练日志 CSV", str(artifact_root / "outputs" / DEFAULT_SHARD / "training_log.csv"))
+figures_dir = path_input("图表目录", str(artifact_root / "outputs" / "figures"))
 image_size = st.sidebar.number_input("输入尺寸", min_value=32, max_value=512, value=224, step=32)
 threshold = st.sidebar.slider("疾病概率阈值", 0.0, 1.0, 0.5, 0.01)
 
