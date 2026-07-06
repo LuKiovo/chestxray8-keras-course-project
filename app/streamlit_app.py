@@ -94,7 +94,7 @@ with tabs[1]:
 
         left, right = st.columns([0.9, 1.2])
         with left:
-            st.image(str(temp_image), caption=uploaded.name, use_container_width=True)
+            st.image(str(temp_image), caption=uploaded.name, use_column_width=True)
         with right:
             st.write("预测阳性标签：", "、".join(prediction["positive_labels"]) or "无")
             st.dataframe(
@@ -163,4 +163,4 @@ with tabs[4]:
     )
     if exists(figures_dir):
         for image_path in sorted(figures_dir.glob("*.png")):
-            st.image(str(image_path), caption=image_path.name, use_container_width=True)
+            st.image(str(image_path), caption=image_path.name, use_column_width=True)
