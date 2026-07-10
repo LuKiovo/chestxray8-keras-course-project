@@ -26,6 +26,8 @@ def metrics_to_dataframe(metrics: dict) -> pd.DataFrame:
                 "f1": item.get("f1"),
                 "accuracy": item.get("accuracy"),
                 "positive_count": item.get("positive_count", 0),
+                "threshold": item.get("threshold"),
+                "validation_f1": item.get("validation_f1"),
             }
         )
     return pd.DataFrame(rows)
@@ -36,7 +38,10 @@ def prediction_to_dataframe(prediction: dict) -> pd.DataFrame:
     df = pd.DataFrame(labels)
     if df.empty:
         return pd.DataFrame(columns=["label", "probability", "predicted"])
-    return df[["label", "probability", "predicted"]]
+    columns = ["label", "probability", "predicted"]
+    if "threshold" in df:
+        columns.append("threshold")
+    return df[columns]
 
 
 def top_predictions(prediction: dict, n: int = 5) -> list[dict]:
@@ -47,7 +52,10 @@ def top_predictions(prediction: dict, n: int = 5) -> list[dict]:
 def load_training_log(path: str | Path) -> pd.DataFrame:
     df = pd.read_csv(path)
     if "epoch" in df:
-        df["epoch"] = pd.to_numeric(df["epoch"], errors="coerce").fillna(0).astype(int) + 1
+        df["_epoch"] = pd.to_numeric(df["epoch"], errors="coerce")
+        df = df.dropna(subset=["_epoch"]).drop_duplicates(subset="_epoch", keep="last").sort_values("_epoch")
+        df["epoch"] = df["_epoch"].astype(int) + 1
+        df = df.drop(columns="_epoch")
     else:
         df.insert(0, "epoch", range(1, len(df) + 1))
     return df

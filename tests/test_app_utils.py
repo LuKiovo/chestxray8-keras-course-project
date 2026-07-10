@@ -21,7 +21,10 @@ class AppUtilsTest(unittest.TestCase):
         }
         metrics_df = metrics_to_dataframe(metrics)
         self.assertEqual(len(metrics_df), len(DISEASE_LABELS))
-        self.assertEqual(set(["label", "auc", "f1", "accuracy", "positive_count"]), set(metrics_df.columns))
+        self.assertEqual(
+            set(["label", "auc", "f1", "accuracy", "positive_count", "threshold", "validation_f1"]),
+            set(metrics_df.columns),
+        )
 
         prediction = {
             "labels": [

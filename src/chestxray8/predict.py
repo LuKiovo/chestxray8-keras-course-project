@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import tempfile
+import zipfile
 from pathlib import Path
 
 import tensorflow as tf
@@ -30,29 +32,82 @@ def load_image(image_path: Path, image_size: int) -> tf.Tensor:
     return tf.expand_dims(image, axis=0)
 
 
+def _remove_newer_keras_fields(config: object) -> object:
+    """Drop Keras config fields not understood by older local Keras builds."""
+    if isinstance(config, dict):
+        config.pop("quantization_config", None)
+        if config.get("class_name") == "GlorotUniform" and isinstance(config.get("config"), dict):
+            config["config"].pop("input_axes", None)
+            config["config"].pop("output_axes", None)
+        if config.get("class_name") == "BatchNormalization" and isinstance(config.get("config"), dict):
+            config["config"].pop("renorm", None)
+            config["config"].pop("renorm_clipping", None)
+            config["config"].pop("renorm_momentum", None)
+        for value in config.values():
+            _remove_newer_keras_fields(value)
+    elif isinstance(config, list):
+        for value in config:
+            _remove_newer_keras_fields(value)
+    return config
+
+
+def _load_model_with_keras_compat(model_path: Path) -> tf.keras.Model:
+    custom_objects = {"WeightedBinaryCrossentropy": WeightedBinaryCrossentropy}
+    try:
+        return tf.keras.models.load_model(
+            model_path,
+            custom_objects=custom_objects,
+            compile=False,
+        )
+    except TypeError as exc:
+        if "input_axes" not in str(exc) and "output_axes" not in str(exc):
+            raise
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        patched_path = Path(temp_dir) / model_path.name
+        with zipfile.ZipFile(model_path, "r") as source, zipfile.ZipFile(
+            patched_path, "w", compression=zipfile.ZIP_DEFLATED
+        ) as target:
+            for item in source.infolist():
+                payload = source.read(item.filename)
+                if item.filename == "config.json":
+                    config = json.loads(payload.decode("utf-8"))
+                    payload = json.dumps(
+                        _remove_newer_keras_fields(config),
+                        ensure_ascii=False,
+                    ).encode("utf-8")
+                target.writestr(item, payload)
+
+        return tf.keras.models.load_model(
+            patched_path,
+            custom_objects=custom_objects,
+            compile=False,
+        )
+
+
 def predict_image(
     model_path: Path,
     image_path: Path,
     image_size: int = 224,
     threshold: float = 0.5,
+    label_thresholds: dict[str, float] | None = None,
 ) -> dict[str, object]:
     if not image_path.exists():
         raise FileNotFoundError(f"Image not found: {image_path}")
 
-    model = tf.keras.models.load_model(
-        model_path,
-        custom_objects={"WeightedBinaryCrossentropy": WeightedBinaryCrossentropy},
-        compile=False,
-    )
+    model = _load_model_with_keras_compat(model_path)
     probabilities = model.predict(load_image(image_path, image_size), verbose=0)[0]
-    labels = [
-        {
-            "label": label,
-            "probability": float(probabilities[index]),
-            "predicted": bool(probabilities[index] >= threshold),
-        }
-        for index, label in enumerate(DISEASE_LABELS)
-    ]
+    labels = []
+    for index, label in enumerate(DISEASE_LABELS):
+        label_threshold = float(label_thresholds.get(label, threshold)) if label_thresholds else threshold
+        labels.append(
+            {
+                "label": label,
+                "probability": float(probabilities[index]),
+                "threshold": label_threshold,
+                "predicted": bool(probabilities[index] >= label_threshold),
+            }
+        )
     labels.sort(key=lambda item: item["probability"], reverse=True)
     return {
         "image": image_path.name,
@@ -79,4 +134,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

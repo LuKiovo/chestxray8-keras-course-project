@@ -48,7 +48,7 @@ class VisualizeTest(unittest.TestCase):
             )
 
             output_dir = root / "figures"
-            outputs = create_figures(output_dir, training_log, metrics_json, roc_json)
+            outputs = create_figures(output_dir, training_log, metrics_json, roc_json, metrics_json)
 
             expected = {
                 "training_loss.png",
@@ -58,6 +58,9 @@ class VisualizeTest(unittest.TestCase):
                 "label_f1.png",
                 "label_accuracy.png",
                 "roc_curves.png",
+                "threshold_metric_comparison.png",
+                "label_f1_comparison.png",
+                "label_accuracy_comparison.png",
             }
             self.assertEqual({path.name for path in outputs}, expected)
             for output in outputs:
@@ -77,6 +80,30 @@ class VisualizeTest(unittest.TestCase):
 
             output_dir = root / "figures"
             outputs = create_figures(output_dir, training_log=training_log)
+
+            self.assertEqual(
+                {path.name for path in outputs},
+                {"training_loss.png", "training_auc.png", "training_accuracy.png"},
+            )
+            for output in outputs:
+                self.assertTrue(output.exists())
+                self.assertGreater(output.stat().st_size, 0)
+
+    def test_create_figures_tolerates_repeated_header_and_restarted_epochs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            training_log = root / "training_log.csv"
+            training_log.write_text(
+                "epoch,loss,auc,binary_accuracy,val_loss,val_auc,val_binary_accuracy\n"
+                "0,0.9,0.55,0.60,1.0,0.50,0.58\n"
+                "1,0.8,0.60,0.65,0.9,0.58,0.62\n"
+                "epoch,loss,auc,binary_accuracy,val_loss,val_auc,val_binary_accuracy\n"
+                "0,0.7,0.70,0.72,0.8,0.66,0.68\n"
+                "1,0.6,0.75,0.76,0.7,0.70,0.74\n",
+                encoding="utf-8",
+            )
+
+            outputs = create_figures(root / "figures", training_log=training_log)
 
             self.assertEqual(
                 {path.name for path in outputs},

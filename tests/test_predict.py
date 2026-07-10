@@ -99,7 +99,17 @@ class PredictSmokeTest(unittest.TestCase):
             self.assertTrue(all(0.0 <= probability <= 1.0 for probability in probabilities))
             self.assertIn("positive_labels", result)
 
+            tuned = predict_image(
+                model_path=model_dir / "best_model.keras",
+                image_path=image_root / "img_6.png",
+                image_size=32,
+                threshold=0.5,
+                label_thresholds={"Atelectasis": 1.0},
+            )
+            atelectasis = next(item for item in tuned["labels"] if item["label"] == "Atelectasis")
+            self.assertEqual(atelectasis["threshold"], 1.0)
+            self.assertFalse(atelectasis["predicted"])
+
 
 if __name__ == "__main__":
     unittest.main()
-

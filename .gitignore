@@ -30,6 +30,13 @@ logs/
 dist/
 reports/
 docs/final_report.md
+docs/final_report.docx
+docs/algorithm_flowchart.html
+ChestXray8_final_report.docx
+ChestXray8_final_report_refined.docx
+defense_demo_script.docx
+_report_work/
+app_streamlit*.log
 *.zip
 *.tar.gz
 
