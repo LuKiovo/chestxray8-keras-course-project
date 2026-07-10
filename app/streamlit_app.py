@@ -1,10 +1,17 @@
 from __future__ import annotations
 
+import sys
 import tempfile
 from pathlib import Path
 
 import pandas as pd
 import streamlit as st
+
+# Support `streamlit run app/streamlit_app.py` without requiring PYTHONPATH setup.
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SRC_ROOT = PROJECT_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
 
 from chestxray8.app_utils import (
     load_json,
